@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+		<title>SVG.js</title>
+		<style>
+		#drawing{
+			background-color: #f0f0e1;
+		}
+		
+		#drawing2{
+			background-color: #bfbfff;
+		}
+		#resultado{
+			background-color: #ffdc73;
+		}
+		</style>
+		<script type="text/javascript" src="./svg.min.js"></script>
+		<script type="text/javascript">
+			
+			var manzanitasNumeroA = [];
+			var manzanitasNumeroB = [];
+			
+			var drawNumerosA;
+			var drawNumerosB;
+			var drawResultados;
+			
+			var div1 = "drawing";
+			var div2 = "drawing2";
+			
+			var divResultado = "resultado";
+			
+			
+			function pintarManzanas(draw, div, size, color, cantidadManzanitas, numeroA){
+				draw = SVG(div).size(size.width, 500);
+				var manzanitas = [];
+				
+				var desplazamiento = 0;
+				var desplazamientoY = 0;
+				var charAt = 0;
+				
+				for(var i=0; i<cantidadManzanitas; i++){
+					
+					
+					draw.polygon([[25 + desplazamiento, 0]
+									, [50 + desplazamiento, 25]
+									, [50 + desplazamiento, 300]
+									, [0 + desplazamiento, 300]
+									, [0 + desplazamiento, 25]]).fill('none').stroke({ width: 5 })
+									
+					draw.line(0, 25, 50 + desplazamiento, 25).fill('#ff0000').stroke({ width: 1 })
+					
+					
+					var text = draw.text(numeroA[charAt]);
+					text.move(25 + desplazamiento, 60 + desplazamientoY).font({ fill: '#f06', family: 'Inconsolata' })
+									
+					desplazamiento += 50;
+					charAt++;
+					
+					/*if(i == 0){
+						rect.x(0);
+						rect.y(0);
+					}else{
+						rect.x(manzanitas[i-1].x() + manzanitas[i-1].width() + 10);
+						rect.y(0);
+					}
+					
+					manzanitas[i] = rect;
+					rect = null;
+					*/
+				}
+				
+				return manzanitas;
+			}
+			
+			function informarError(draw, div, size){
+				draw = SVG(div).size(size.width, 80);
+				var manzanitas = [];
+				
+				var text = draw.text('No se puede pintar !')
+				text.move(0, 0).font({ fill: '#ff0000', family: 'Inconsolata' })
+				
+				return manzanitas;
+			}
+
+			function dibujarManzanitas(){
+			
+				clear();
+				
+				var numeroA = document.getElementById("numeroA").value;
+				
+				var sizeDivNumerosA = getDivSize(div1);
+				
+				var colorNumeroA = '#ff265c';
+				
+				var cantidadTechos = main(numeroA);
+				
+				manzanitasNumeroA = pintarManzanas(drawNumerosA, div1, sizeDivNumerosA, colorNumeroA, cantidadTechos, numeroA);
+				
+				/*
+			
+				var numeroA = document.getElementById("numeroA").value;
+				var numeroB = document.getElementById("numeroB").value;
+				var operando = document.getElementById("numeroB").value;
+				
+				var colorNumeroA = '#ff265c';
+				var colorNumeroB = '#4cff79';
+				var colorResultados = '#e6ff99';
+				
+				var sizeDivNumerosA = getDivSize(div1);
+				var sizeDivNumerosB = getDivSize(div2);
+				
+				var operator = getOperator('operacion');
+				
+				var resultado = eval(numeroA + operator +  numeroB);
+								
+				manzanitasNumeroA = pintarManzanas(drawNumerosA, div1, sizeDivNumerosA, colorNumeroA, numeroA);
+				manzanitasNumeroB = pintarManzanas(drawNumerosB, div2, sizeDivNumerosB, colorNumeroB, numeroB);
+				
+				if(resultado>0){
+					manzanitasNumeroB = pintarManzanas(drawResultados, divResultado, sizeDivNumerosB, colorResultados, resultado);
+				}else{
+					informarError(drawResultados, divResultado, sizeDivNumerosB);
+				}
+				*/
+			}
+			
+			function getDivSize(divName){
+				var size = {};
+				var div = document.getElementById(divName);
+				size.width = div.clientWidth;
+				size.height = div.clientHeight;
+				
+				return size;
+			}
+			
+			function getOperator(elementName){
+				var radios = document.getElementsByName(elementName);
+				var operators = {'Sumar':'+','Restar':'-'};
+				var operator;
+
+				for (var i = 0, length = radios.length; i < length; i++){
+					if (radios[i].checked){						
+						operator = operators[radios[i].value];
+						break;
+					}
+				}
+				
+				return operator;
+			}
+						
+			function clear(){
+				clearArray(manzanitasNumeroA);
+				clearArray(manzanitasNumeroB);
+				
+				clearHTMLNodes(div1);
+				clearHTMLNodes(div2);
+				clearHTMLNodes(divResultado);
+				
+				drawNumerosA = null;
+				drawNumerosB = null;
+				
+				function clearArray(arreglo){
+					if(arreglo != null){
+						for(var i=0; i<arreglo.length; i++){
+							arreglo[i].remove();
+						}
+						arreglo = null;
+					}
+				}
+				
+				function clearHTMLNodes(div){
+					var element = document.getElementById(div);
+						while (element.firstChild) {
+						  element.removeChild(element.firstChild);
+					}
+				}
+			}
+			
+			function main(numberToBreakDown){
+				var numberLength = numberToBreakDown.length;
+				var divisor = Math.pow(10 , (numberLength-1));
+				
+				alert("numberLength = " + numberLength);
+				alert("divisor = " + divisor);
+				
+				var cantidadTechos = breakDown(numberToBreakDown, divisor);
+				return cantidadTechos;
+			}
+
+			function breakDown(numberToBreakDown, divisor){
+				var resultsMod = [];
+				var resultsDiv = [];
+				var acumuladorDivisor = divisor;
+				var posicion = 0;
+				
+				while(parseInt(acumuladorDivisor) > 0){
+					
+					resultsDiv[posicion] = parseInt(numberToBreakDown / acumuladorDivisor);
+					resultsMod[posicion] = numberToBreakDown % acumuladorDivisor;
+					
+					alert("acumuladorDivisor = " + acumuladorDivisor + "\n" +
+							"numberToBreakDown = " + numberToBreakDown + "\n" + 
+							"resultsMod["+ posicion + "] = " + resultsMod[posicion] + "\n" + 
+							"resultsDiv["+ posicion + "] = " + resultsDiv[posicion]);
+					
+					numberToBreakDown = resultsMod[posicion];
+					posicion++;		
+					acumuladorDivisor /= 10;		
+				}
+				
+				//drawHouses();
+				
+				return posicion;
+			}
+			
+		</script>
+	</head>
+	<body>		
+		<form>
+		<table>
+			<tr>
+				<td><label for="numeroA">Primer N&uacute;mero</label></td>
+				<td><input type="number" id="numeroA" min="1" max="10"></td>
+			</tr>
+			<tr>
+				<td><label for="numeroB">Segundo N&uacute;mero</label></td>
+				<td><input type="number" id="numeroB" min="1" max="10"></td>
+			</tr>
+			<tr>
+				<td><label for="operacion">Operaci&oacute;n</label></td>
+				<td>
+					<input type="radio" id="operacion" value="Sumar" name="operacion" checked>Sumar
+					<input type="radio" id="operacion" value="Restar" name="operacion">Restar
+				</td>
+			</tr>
+			<tr>
+				<td><label for="calcular">Calcular !</label></td>
+				<td><input type="button" onClick="dibujarManzanitas()" value="Calcular !" id="calcular"></td>
+			</tr>		
+		</table>
+		</form>
+		<div id="drawing"></div>
+		<div id="drawing2"></div>
+		<div id="resultado"></div>
+	</body>
+</html>
